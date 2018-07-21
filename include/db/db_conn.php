@@ -39,18 +39,20 @@ function sanitize($data) {
 }
 
 /**
+ * Perform a db query and close the connection afterwards.
+ *
  * @param $sql
+ *   The statement to make.
+ * @param bool $KEEP_OPEN
+ *   A flag to specify if the connection should stay open.
  *
  * @return mysqli_stmt|bool
  *   FALSE if an error occurs, mysqli statement otherwise.
  */
-function db_query($sql) {
+function db_query($sql, $KEEP_OPEN = false) {
   global $con;
 
-  // Atempt to connect to the database if we're not already connected.
-  if ($con == NULL) {
-    connect();
-  }
+  connect();
 
   // Execute the query, check for a well formed query, and return the result set or false.
   $rsltSet = $con->query($sql);
@@ -58,6 +60,10 @@ function db_query($sql) {
     echo 'Error -> Query executed: ' . $sql . ' Message: ' . $con->error;
 
     return FALSE;
+  }
+
+  if (!$KEEP_OPEN) {
+    close_con();
   }
 
   return $rsltSet;
